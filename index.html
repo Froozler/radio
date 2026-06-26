@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Asunción - Zero Cost</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --text: #ffffff;
+            --accent: #ff4500;
+            --subtext: #888888;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 90%;
+            width: 400px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+        p.subtitle {
+            color: var(--subtext);
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+        button#playBtn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 140px;
+            height: 140px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 69, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+        button#playBtn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.4);
+        }
+        .status {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--subtext);
+            height: 20px;
+        }
+        .transcript-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            border: 1px solid #333;
+        }
+        .es-text { font-weight: bold; color: var(--text); display: block; }
+        .en-text { font-size: 0.9rem; color: var(--accent); display: block; margin-top: 5px;}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🇵🇾 Radio Asunción</h1>
+        <p class="subtitle">Synthetic A1 Immersion Loop</p>
+        
+        <button id="playBtn">TUNE IN</button>
+        
+        <div class="status" id="statusText">Station Offline</div>
+        
+        <div class="transcript-box" id="transcript">
+            <span style="color: #555;">Press Tune In to connect...</span>
+        </div>
+    </div>
+
+    <script>
+        // Content Bank: A1 Paraguayan Spanish with English translations
+        const broadcastBank = [
+            { es: "Hola. Mba'éichapa? Bienvenidos a Radio Asunción.", en: "Hello. How are you? Welcome to Radio Asunción." },
+            { es: "Yo soy tu profesor. Vamos a practicar español.", en: "I am your teacher. We are going to practice Spanish." },
+            { es: "En Paraguay, usamos el pronombre vos, no tú.", en: "In Paraguay, we use the pronoun 'vos', not 'tú'." },
+            { es: "Vos sos mi amigo. Repite: Vos sos mi amigo.", en: "You are my friend. Repeat: You are my friend." },
+            { es: "Hace mucho calor hoy. Voy a tomar tereré.", en: "It is very hot today. I am going to drink tereré." },
+            { es: "El tereré es agua fría con yerba mate.", en: "Tereré is cold water with yerba mate." },
+            { es: "¿Qué querés comer? Yo quiero comer chipa.", en: "What do you want to eat? I want to eat chipa." },
+            { es: "La chipa es pan de queso delicioso.", en: "Chipa is delicious cheese bread." },
+            { es: "Habla despacio, por favor. Soy estudiante.", en: "Speak slowly, please. I am a student." },
+            { es: "Entiendo un poco de Jopara. Español y Guaraní.", en: "I understand a little Jopara. Spanish and Guarani." },
+            { es: "Me gusta Asunción. La ciudad es bonita.", en: "I like Asunción. The city is pretty." },
+            { es: "Vamos al supermercado a comprar carne.", en: "Let's go to the supermarket to buy meat." },
+            { es: "Vos tenés que estudiar todos los días.", en: "You have to study every day." }
+        ];
+
+        const playBtn = document.getElementById('playBtn');
+        const statusText = document.getElementById('statusText');
+        const transcript = document.getElementById('transcript');
+        let isPlaying = false;
+        let speechSynth = window.speechSynthesis;
+        let currentTimeout;
+
+        function getDeterministicItem() {
+            // Pick a phrase based on the current 10-second window
+            // This ensures everyone listening at the same time hears the same phrase
+            const timeSlot = Math.floor(Date.now() / 10000); 
+            const index = timeSlot % broadcastBank.length;
+            return broadcastBank[index];
+        }
+
+        function playRadioLoop() {
+            if (!isPlaying) return;
+
+            const item = getDeterministicItem();
+            
+            // Update UI
+            transcript.innerHTML = `
+                <span class="es-text">${item.es}</span>
+                <span class="en-text">${item.en}</span>
+            `;
+            statusText.innerHTML = `<span style="color:red;">● LIVE</span> Broadcasting...`;
+
+            // Create Speech
+            const utterance = new SpeechSynthesisUtterance(item.es);
+            
+            // Configure Voice (Slow, tries to find a Spanish voice)
+            utterance.rate = 0.8; 
+            utterance.pitch = 1.0;
+            
+            // Try to set a Spanish voice if the browser has one
+            const voices = speechSynth.getVoices();
+            const esVoice = voices.find(v => v.lang.startsWith('es-') || v.lang.startsWith('es_'));
+            if (esVoice) utterance.voice = esVoice;
+
+            // When the browser finishes speaking, wait a few seconds and loop
+            utterance.onend = () => {
+                if (isPlaying) {
+                    statusText.innerHTML = `<span style="color:green;">● LIVE</span> Waiting...`;
+                    currentTimeout = setTimeout(playRadioLoop, 4000); // 4 second pause between phrases
+                }
+            };
+
+            // Speak
+            speechSynth.speak(utterance);
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                isPlaying = true;
+                playBtn.innerText = "STOP";
+                playBtn.style.backgroundColor = "#222";
+                
+                // Chrome requires voices to be loaded first
+                if (speechSynth.getVoices().length === 0) {
+                    speechSynth.onvoiceschanged = playRadioLoop;
+                } else {
+                    playRadioLoop();
+                }
+            } else {
+                isPlaying = false;
+                playBtn.innerText = "TUNE IN";
+                playBtn.style.backgroundColor = "var(--accent)";
+                statusText.innerText = "Station Offline";
+                transcript.innerHTML = '<span style="color: #555;">Broadcast ended.</span>';
+                
+                speechSynth.cancel(); // Stop speaking immediately
+                clearTimeout(currentTimeout);
+            }
+        });
+    </script>
+</body>
+</html>
+ 
