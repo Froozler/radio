@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Asunción - Channel 2</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --text: #ffffff;
+            --accent: #ffb300; /* Changed to Amber for Channel 2 */
+            --subtext: #888888;
+            --mateo: #4da6ff;
+            --sofia: #ff66b2;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 90%;
+            width: 500px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+        p.subtitle {
+            color: var(--subtext);
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+        button#playBtn {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 50%;
+            width: 130px;
+            height: 130px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(255, 179, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+        button#playBtn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+        }
+        .status {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--subtext);
+            height: 20px;
+        }
+        .transcript-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: #111;
+            border-radius: 12px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            font-size: 1.2rem;
+            line-height: 1.4;
+            border: 1px solid #333;
+        }
+        .speaker-tag { font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;}
+        .speaker-Mateo { color: var(--mateo); }
+        .speaker-Sofia { color: var(--sofia); }
+        .es-text { font-weight: bold; color: var(--text); display: block; margin-bottom: 5px;}
+        .en-text { font-size: 0.95rem; color: var(--subtext); display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🇵🇾 Radio Asunción</h1>
+        <p class="subtitle">Channel 2: Daily Life & Travel</p>
+      
+      <a href="index.html" style="color: var(--subtext); text-decoration: none; margin-bottom: 20px; border: 1px solid #333; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem;">Switch to Channel 1 📻</a>
+
+        
+        <button id="playBtn">TUNE IN</button>
+        
+        <div class="status" id="statusText">Station Offline</div>
+        
+        <div class="transcript-box" id="transcript">
+            <span style="color: #555; text-align: center; width: 100%;">Press Tune In to connect to Channel 2...</span>
+        </div>
+    </div>
+
+    <script>
+        const rawBank = [
+            // 1-10: Morning Routine
+            {s:"M", es:"Buen día a todos. Bienvenidos al canal dos.", en:"Good morning everyone. Welcome to channel two."},
+            {s:"S", es:"Buen día Mateo. ¿A qué hora te levantaste?", en:"Good morning Mateo. What time did you wake up?"},
+            {s:"M", es:"Me levanté a las seis de la mañana.", en:"I woke up at six in the morning."},
+            {s:"S", es:"Es muy temprano. Yo me levanté a las siete.", en:"It is very early. I woke up at seven."},
+            {s:"M", es:"Primero, me lavo la cara y los dientes.", en:"First, I wash my face and my teeth."},
+            {s:"S", es:"Yo tomo una ducha rápida con agua fría.", en:"I take a quick shower with cold water."},
+            {s:"M", es:"El agua fría es buena para despertar.", en:"Cold water is good for waking up."},
+            {s:"S", es:"Después, me peino el pelo y me visto.", en:"Afterwards, I comb my hair and get dressed."},
+            {s:"M", es:"Yo escucho la radio mientras me visto.", en:"I listen to the radio while I get dressed."},
+            {s:"S", es:"Es una rutina matutina muy buena.", en:"It is a very good morning routine."},
+            
+            // 11-20: Paraguayan Breakfast
+            {s:"M", es:"¿Qué vas a desayunar hoy?", en:"What are you going to have for breakfast today?"},
+            {s:"S", es:"Voy a preparar un desayuno tradicional.", en:"I am going to prepare a traditional breakfast."},
+            {s:"M", es:"¿Vas a hacer mbeju con cocido?", en:"Are you going to make mbeju with cocido?"},
+            {s:"S", es:"Sí, el mbeju es una tortilla de almidón y queso.", en:"Yes, mbeju is a starch and cheese flatbread."},
+            {s:"M", es:"Es crujiente y muy rico caliente.", en:"It is crunchy and very tasty hot."},
+            {s:"S", es:"Y el cocido es mate cocido con leche.", en:"And the cocido is brewed mate with milk."},
+            {s:"M", es:"A veces hacemos cocido quemado con azúcar.", en:"Sometimes we make burnt cocido with sugar."},
+            {s:"S", es:"Es perfecto para las mañanas frescas.", en:"It is perfect for cool mornings."},
+            {s:"M", es:"Yo voy a comer pan con manteca.", en:"I am going to eat bread with butter."},
+            {s:"S", es:"También es un buen desayuno rápido.", en:"It is also a good quick breakfast."},
+
+            // 21-30: Numbers 1-10
+            {s:"M", es:"Vamos a practicar los números básicos.", en:"Let's practice the basic numbers."},
+            {s:"S", es:"Contar es muy importante para comprar.", en:"Counting is very important for buying."},
+            {s:"M", es:"Uno, dos, tres.", en:"One, two, three."},
+            {s:"S", es:"Cuatro, cinco, seis.", en:"Four, five, six."},
+            {s:"M", es:"Siete, ocho, nueve, diez.", en:"Seven, eight, nine, ten."},
+            {s:"S", es:"Tengo cinco manzanas en la mesa.", en:"I have five apples on the table."},
+            {s:"M", es:"Yo tengo dos gatos en mi casa.", en:"I have two cats in my house."},
+            {s:"S", es:"Necesito comprar tres botellas de agua.", en:"I need to buy three bottles of water."},
+            {s:"M", es:"El boleto de autobús cuesta muy poco.", en:"The bus ticket costs very little."},
+            {s:"S", es:"Saber los números ayuda mucho.", en:"Knowing numbers helps a lot."},
+
+            // 31-40: Numbers 11-20
+            {s:"M", es:"Ahora los números del once al veinte.", en:"Now the numbers from eleven to twenty."},
+            {s:"S", es:"Once, doce, trece.", en:"Eleven, twelve, thirteen."},
+            {s:"M", es:"Catorce, quince, dieciséis.", en:"Fourteen, fifteen, sixteen."},
+            {s:"S", es:"Diecisiete, dieciocho, diecinueve.", en:"Seventeen, eighteen, nineteen."},
+            {s:"M", es:"Y finalmente el número veinte.", en:"And finally the number twenty."},
+            {s:"S", es:"Tengo quince minutos para llegar.", en:"I have fifteen minutes to arrive."},
+            {s:"M", es:"Hay veinte estudiantes en la clase.", en:"There are twenty students in the class."},
+            {s:"S", es:"Mi hermano tiene dieciocho años.", en:"My brother is eighteen years old."},
+            {s:"M", es:"Cuesta doce mil guaraníes.", en:"It costs twelve thousand guaranies."},
+            {s:"S", es:"Muy bien, ya sabes contar hasta veinte.", en:"Very good, now you know how to count to twenty."},
+
+            // 41-50: Asking for Directions
+            {s:"M", es:"Disculpe, ¿cómo llego a la plaza?", en:"Excuse me, how do I get to the plaza?"},
+            {s:"S", es:"La plaza principal está muy cerca.", en:"The main plaza is very close."},
+            {s:"M", es:"¿Tengo que caminar mucho?", en:"Do I have to walk a lot?"},
+            {s:"S", es:"No, camina tres cuadras derecho.", en:"No, walk three blocks straight."},
+            {s:"M", es:"Tres cuadras derecho. ¿Y después?", en:"Three blocks straight. And then?"},
+            {s:"S", es:"Después, dobla a la izquierda.", en:"Then, turn left."},
+            {s:"M", es:"¿Está a la izquierda o a la derecha?", en:"Is it to the left or to the right?"},
+            {s:"S", es:"La plaza está a tu izquierda.", en:"The plaza is on your left."},
+            {s:"M", es:"Entiendo, tres cuadras y a la izquierda.", en:"I understand, three blocks and to the left."},
+            {s:"S", es:"Sí, no te podés perder.", en:"Yes, you cannot get lost."},
+
+            // 51-60: The Bus Terminal
+            {s:"M", es:"Necesito ir a la Terminal de Ómnibus.", en:"I need to go to the Bus Terminal."},
+            {s:"S", es:"¿Vas a viajar al interior del país?", en:"Are you going to travel to the interior of the country?"},
+            {s:"M", es:"Sí, voy a visitar a mi familia en Encarnación.", en:"Yes, I am going to visit my family in Encarnación."},
+            {s:"S", es:"Encarnación es una ciudad muy linda.", en:"Encarnación is a very beautiful city."},
+            {s:"M", es:"¿Dónde compro el pasaje?", en:"Where do I buy the ticket?"},
+            {s:"S", es:"Podés comprar el pasaje en la ventanilla.", en:"You can buy the ticket at the counter."},
+            {s:"M", es:"¿A qué hora sale el colectivo?", en:"What time does the bus leave?"},
+            {s:"S", es:"Sale a las dos de la tarde en punto.", en:"It leaves at exactly two in the afternoon."},
+            {s:"M", es:"¿Cuánto dura el viaje?", en:"How long does the trip take?"},
+            {s:"S", es:"El viaje dura unas seis horas.", en:"The trip takes about six hours."},
+
+            // 61-70: At the Hotel
+            {s:"M", es:"Buenas tardes. Tengo una reserva.", en:"Good afternoon. I have a reservation."},
+            {s:"S", es:"Bienvenido al hotel. ¿A nombre de quién?", en:"Welcome to the hotel. Under what name?"},
+            {s:"M", es:"A nombre de Mateo Ruiz.", en:"Under the name of Mateo Ruiz."},
+            {s:"S", es:"Sí, aquí está. Una habitación simple.", en:"Yes, here it is. A single room."},
+            {s:"M", es:"¿El desayuno está incluido?", en:"Is breakfast included?"},
+            {s:"S", es:"Sí, el desayuno es de siete a diez.", en:"Yes, breakfast is from seven to ten."},
+            {s:"M", es:"Perfecto. ¿Cuál es mi número de habitación?", en:"Perfect. What is my room number?"},
+            {s:"S", es:"Su habitación es la número veinte.", en:"Your room is number twenty."},
+            {s:"M", es:"¿Tienen internet wifi gratis?", en:"Do you have free wifi internet?"},
+            {s:"S", es:"Sí, la contraseña está en la llave.", en:"Yes, the password is on the key."},
+
+            // 71-80: In the Pharmacy
+            {s:"M", es:"Hola, busco la farmacia más cercana.", en:"Hello, I am looking for the nearest pharmacy."},
+            {s:"S", es:"Hay una farmacia en la esquina.", en:"There is a pharmacy on the corner."},
+            {s:"M", es:"Buenas tardes. Me duele mucho el estómago.", en:"Good afternoon. My stomach hurts a lot."},
+            {s:"S", es:"¿Comió algo en mal estado?", en:"Did you eat something bad?"},
+            {s:"M", es:"Creo que comí demasiada carne.", en:"I think I ate too much meat."},
+            {s:"S", es:"Tengo unas pastillas para la digestión.", en:"I have some pills for digestion."},
+            {s:"M", es:"¿Cuántas pastillas debo tomar?", en:"How many pills should I take?"},
+            {s:"S", es:"Tome una pastilla cada ocho horas.", en:"Take one pill every eight hours."},
+            {s:"M", es:"Muchas gracias. ¿Cuánto le debo?", en:"Thank you very much. How much do I owe you?"},
+            {s:"S", es:"Son quince mil guaraníes, por favor.", en:"It is fifteen thousand guaranies, please."},
+
+            // 81-90: Personal Information
+            {s:"M", es:"Hola, me llamo Mateo. ¿Cómo te llamás?", en:"Hello, my name is Mateo. What is your name?"},
+            {s:"S", es:"Hola Mateo. Yo me llamo Sofia.", en:"Hello Mateo. My name is Sofia."},
+            {s:"M", es:"Mucho gusto, Sofia. ¿De dónde sos?", en:"Nice to meet you, Sofia. Where are you from?"},
+            {s:"S", es:"Yo soy de Paraguay. Soy paraguaya.", en:"I am from Paraguay. I am Paraguayan."},
+            {s:"M", es:"Yo soy de Estados Unidos. Soy estadounidense.", en:"I am from the United States. I am American."},
+            {s:"S", es:"¿Cuántos años tenés, Mateo?", en:"How old are you, Mateo?"},
+            {s:"M", es:"Yo tengo veinticinco años.", en:"I am twenty-five years old."},
+            {s:"S", es:"Yo tengo veintitrés años.", en:"I am twenty-three years old."},
+            {s:"M", es:"¿Dónde vivís actualmente?", en:"Where do you live currently?"},
+            {s:"S", es:"Vivo en el centro de Asunción.", en:"I live in downtown Asunción."},
+
+            // 91-100: Likes and Dislikes
+            {s:"M", es:"Me gusta mucho el clima de aquí.", en:"I really like the climate here."},
+            {s:"S", es:"¿En serio? A mí no me gusta el calor.", en:"Really? I don't like the heat."},
+            {s:"M", es:"Prefiero el calor al frío extremo.", en:"I prefer the heat to extreme cold."},
+            {s:"S", es:"Me gusta ir a la piscina en verano.", en:"I like to go to the pool in summer."},
+            {s:"M", es:"A mí me encanta comer asado.", en:"I love eating barbecue."},
+            {s:"S", es:"No me gusta la cebolla en la comida.", en:"I don't like onion in the food."},
+            {s:"M", es:"Me fascina la música paraguaya.", en:"Paraguayan music fascinates me."},
+            {s:"S", es:"Me gusta bailar polca con amigos.", en:"I like to dance polka with friends."},
+            {s:"M", es:"No me gusta el tráfico en la ciudad.", en:"I don't like the traffic in the city."},
+            {s:"S", es:"A nadie le gusta el tráfico pesado.", en:"Nobody likes heavy traffic."},
+
+            // 101-110: At the Cafe
+            {s:"M", es:"Vamos a sentarnos en esta cafetería.", en:"Let's sit down in this cafe."},
+            {s:"S", es:"Buena idea. Necesito un café fuerte.", en:"Good idea. I need a strong coffee."},
+            {s:"M", es:"Mesero, por favor, dos cafés con leche.", en:"Waiter, please, two coffees with milk."},
+            {s:"S", es:"¿Querés algo dulce para comer?", en:"Do you want something sweet to eat?"},
+            {s:"M", es:"Sí, quiero una porción de torta de chocolate.", en:"Yes, I want a slice of chocolate cake."},
+            {s:"S", es:"Yo voy a pedir unas medialunas.", en:"I am going to order some croissants."},
+            {s:"M", es:"El café huele muy bien hoy.", en:"The coffee smells very good today."},
+            {s:"S", es:"Sí, el café recién hecho es el mejor.", en:"Yes, freshly brewed coffee is the best."},
+            {s:"M", es:"Yo tomo el café sin azúcar.", en:"I drink the coffee without sugar."},
+            {s:"S", es:"Yo le pongo dos cucharadas de azúcar.", en:"I put two spoons of sugar in it."},
+
+            // 111-120: Basic Verbs (Future Tense)
+            {s:"M", es:"¿Qué vas a hacer mañana?", en:"What are you going to do tomorrow?"},
+            {s:"S", es:"Voy a estudiar español todo el día.", en:"I am going to study Spanish all day."},
+            {s:"M", es:"Yo voy a trabajar en mi computadora.", en:"I am going to work on my computer."},
+            {s:"S", es:"¿Vas a salir por la noche?", en:"Are you going to go out at night?"},
+            {s:"M", es:"No, voy a dormir temprano mañana.", en:"No, I am going to sleep early tomorrow."},
+            {s:"S", es:"Mi madre va a cocinar pollo al horno.", en:"My mother is going to cook baked chicken."},
+            {s:"M", es:"Nosotros vamos a ver un partido de fútbol.", en:"We are going to watch a soccer game."},
+            {s:"S", es:"Ellos van a viajar en autobús.", en:"They are going to travel by bus."},
+            {s:"M", es:"Ustedes van a aprender mucho hoy.", en:"You all are going to learn a lot today."},
+            {s:"S", es:"El futuro es fácil. Usamos 'voy a'.", en:"The future is easy. We use 'voy a'."},
+
+            // 121-130: Extended Family
+            {s:"M", es:"Ayer vi a mi tío en el supermercado.", en:"Yesterday I saw my uncle at the supermarket."},
+            {s:"S", es:"¿El hermano de tu padre o tu madre?", en:"The brother of your father or your mother?"},
+            {s:"M", es:"El hermano de mi madre. Mi tío Juan.", en:"The brother of my mother. My uncle Juan."},
+            {s:"S", es:"Mi tía María siempre me regala dulces.", en:"My aunt Maria always gifts me sweets."},
+            {s:"M", es:"Tengo cuatro primos por parte de mi padre.", en:"I have four cousins on my father's side."},
+            {s:"S", es:"Mis abuelos viven en el campo.", en:"My grandparents live in the countryside."},
+            {s:"M", es:"El campo es muy tranquilo para los abuelos.", en:"The countryside is very calm for grandparents."},
+            {s:"S", es:"Mi abuelo tiene ochenta años.", en:"My grandfather is eighty years old."},
+            {s:"M", es:"Mi sobrina acaba de nacer. Es un bebé.", en:"My niece was just born. She is a baby."},
+            {s:"S", es:"La familia unida es una gran bendición.", en:"A united family is a great blessing."},
+
+            // 131-140: Nature & Geography
+            {s:"M", es:"Paraguay tiene muchos ríos y arroyos.", en:"Paraguay has many rivers and streams."},
+            {s:"S", es:"Un arroyo es un río muy pequeño.", en:"A stream is a very small river."},
+            {s:"M", es:"A la gente le gusta bañarse en el arroyo.", en:"People like to bathe in the stream."},
+            {s:"S", es:"El agua del arroyo es limpia y fresca.", en:"The stream water is clean and cool."},
+            {s:"M", es:"También tenemos cerros, pero no montañas altas.", en:"We also have hills, but no high mountains."},
+            {s:"S", es:"Subir un cerro es un buen ejercicio.", en:"Climbing a hill is good exercise."},
+            {s:"M", es:"Desde arriba del cerro, la vista es hermosa.", en:"From the top of the hill, the view is beautiful."},
+            {s:"S", es:"Me gusta caminar por el bosque verde.", en:"I like to walk through the green forest."},
+            {s:"M", es:"Hay que proteger nuestros bosques.", en:"We must protect our forests."},
+            {s:"S", es:"La naturaleza paraguaya es un tesoro.", en:"Paraguayan nature is a treasure."},
+
+            // 141-150: Common Jopara Phrases (Part 2)
+            {s:"M", es:"Hablemos de más palabras en Jopara.", en:"Let's talk about more words in Jopara."},
+            {s:"S", es:"Usamos la palabra 'piko' para preguntar.", en:"We use the word 'piko' to ask."},
+            {s:"M", es:"¿En serio piko? Significa '¿De verdad?'", en:"Seriously piko? It means 'Really?'"},
+            {s:"S", es:"Sí. Y usamos 'na' para pedir un favor.", en:"Yes. And we use 'na' to ask a favor."},
+            {s:"M", es:"Vení na acá. Significa 'Ven aquí, por favor'.", en:"Vení na acá. It means 'Come here, please'."},
+            {s:"S", es:"Es una forma dulce y amable de hablar.", en:"It is a sweet and kind way of speaking."},
+            {s:"M", es:"Otra palabra es 'ñande', que significa 'nosotros'.", en:"Another word is 'ñande', which means 'we'."},
+            {s:"S", es:"Ñande comida, ñande música. Lo nuestro.", en:"Our food, our music. What is ours."},
+            {s:"M", es:"El Jopara hace al español único aquí.", en:"Jopara makes Spanish unique here."},
+            {s:"S", es:"Escucha a la gente y vas a aprender rápido.", en:"Listen to the people and you will learn fast."},
+
+            // 151-160: Winter and Cold Weather
+            {s:"M", es:"Hoy hace mucho frío. Es invierno.", en:"Today is very cold. It is winter."},
+            {s:"S", es:"Necesito usar mi abrigo y una bufanda.", en:"I need to wear my coat and a scarf."},
+            {s:"M", es:"Yo tengo guantes y un gorro de lana.", en:"I have gloves and a wool hat."},
+            {s:"S", es:"El viento sur es muy fuerte y helado.", en:"The south wind is very strong and freezing."},
+            {s:"M", es:"Es el día perfecto para tomar mate caliente.", en:"It is the perfect day to drink hot mate."},
+            {s:"S", es:"No tomamos tereré cuando hace frío.", en:"We don't drink tereré when it is cold."},
+            {s:"M", es:"Cambiamos el agua fría por agua caliente.", en:"We change the cold water for hot water."},
+            {s:"S", es:"Y nos quedamos adentro de la casa.", en:"And we stay inside the house."},
+            {s:"M", es:"Cierra la ventana, por favor. Entra el viento.", en:"Close the window, please. The wind is coming in."},
+            {s:"S", es:"Mañana va a hacer más calor, por suerte.", en:"Tomorrow it will be hotter, luckily."},
+
+            // 161-170: At the Supermarket (Dairy & Bread)
+            {s:"M", es:"Vamos al pasillo de los lácteos.", en:"Let's go to the dairy aisle."},
+            {s:"S", es:"Necesitamos leche, queso y yogur.", en:"We need milk, cheese, and yogurt."},
+            {s:"M", es:"Agarra el queso Paraguay para la sopa.", en:"Grab the Paraguay cheese for the soup."},
+            {s:"S", es:"El queso fresco es el más sabroso.", en:"The fresh cheese is the tastiest."},
+            {s:"M", es:"Ahora vamos a la panadería del súper.", en:"Now let's go to the supermarket bakery."},
+            {s:"S", es:"Quiero comprar pan Felipe. Es muy común.", en:"I want to buy Felipe bread. It is very common."},
+            {s:"M", es:"Lleva una docena de panes pequeños.", en:"Take a dozen small breads."},
+            {s:"S", es:"¿Compramos huevos también?", en:"Should we buy eggs too?"},
+            {s:"M", es:"Sí, una caja de doce huevos blancos.", en:"Yes, a box of twelve white eggs."},
+            {s:"S", es:"Perfecto, vamos a pagar a la caja.", en:"Perfect, let's go pay at the register."},
+
+            // 171-180: Emotions and States
+            {s:"M", es:"El perro grande me dio mucho miedo.", en:"The big dog gave me a lot of fear."},
+            {s:"S", es:"¿Estás asustado? No te va a morder.", en:"Are you scared? It is not going to bite you."},
+            {s:"M", es:"No estoy asustado, solo sorprendido.", en:"I am not scared, just surprised."},
+            {s:"S", es:"Yo estoy muy cansada después del trabajo.", en:"I am very tired after work."},
+            {s:"M", es:"El trabajo físico agota la energía.", en:"Physical work exhausts energy."},
+            {s:"S", es:"Pero estoy orgullosa de mi esfuerzo.", en:"But I am proud of my effort."},
+            {s:"M", es:"Mi hermano está nervioso por su examen.", en:"My brother is nervous about his exam."},
+            {s:"S", es:"Es normal sentir nervios antes de una prueba.", en:"It is normal to feel nervous before a test."},
+            {s:"M", es:"Estar tranquilo es la mejor medicina.", en:"Being calm is the best medicine."},
+            {s:"S", es:"Respira profundo y todo estará bien.", en:"Breathe deep and everything will be fine."},
+
+            // 181-190: Colors & Clothes (Detailed)
+            {s:"M", es:"Quiero comprar una camisa de mangas cortas.", en:"I want to buy a short-sleeved shirt."},
+            {s:"S", es:"¿De qué color te gusta la camisa?", en:"What color do you like the shirt?"},
+            {s:"M", es:"Busco algo en color azul claro o celeste.", en:"I am looking for something in light blue or sky blue."},
+            {s:"S", es:"Esta camisa celeste te queda muy bien.", en:"This sky blue shirt looks very good on you."},
+            {s:"M", es:"Necesito probarme la camisa. ¿Dónde está el probador?", en:"I need to try the shirt on. Where is the fitting room?"},
+            {s:"S", es:"Al fondo a la derecha. Yo miro vestidos.", en:"At the back on the right. I am looking at dresses."},
+            {s:"M", es:"Este vestido amarillo es hermoso para vos.", en:"This yellow dress is beautiful for you."},
+            {s:"S", es:"Pero no tengo zapatos para combinar.", en:"But I don't have shoes to match."},
+            {s:"M", es:"Podés usar zapatos blancos o marrones.", en:"You can wear white or brown shoes."},
+            {s:"S", es:"Tienes razón. Me llevo el vestido.", en:"You are right. I will take the dress."},
+
+            // 191-200: Prepositions of Place
+            {s:"M", es:"¿Dónde están las llaves del auto?", en:"Where are the car keys?"},
+            {s:"S", es:"Las llaves están sobre la mesa.", en:"The keys are on the table."},
+            {s:"M", es:"No, no están encima de la mesa.", en:"No, they are not on top of the table."},
+            {s:"S", es:"Mira debajo de la revista.", en:"Look under the magazine."},
+            {s:"M", es:"Ah, sí. Estaban debajo del papel.", en:"Ah, yes. They were under the paper."},
+            {s:"S", es:"Mi teléfono está dentro de mi bolso.", en:"My phone is inside my bag."},
+            {s:"M", es:"El perro está detrás de la puerta.", en:"The dog is behind the door."},
+            {s:"S", es:"La farmacia está enfrente del supermercado.", en:"The pharmacy is in front of the supermarket."},
+            {s:"M", es:"Yo estoy sentado al lado tuyo.", en:"I am sitting next to you."},
+            {s:"S", es:"Entre la silla y el sofá.", en:"Between the chair and the sofa."},
+
+            // 201-210: Hobbies - Sports
+            {s:"M", es:"Aparte del fútbol, ¿qué deportes te gustan?", en:"Apart from soccer, what sports do you like?"},
+            {s:"S", es:"Me gusta jugar al tenis los fines de semana.", en:"I like to play tennis on the weekends."},
+            {s:"M", es:"El tenis requiere mucha velocidad.", en:"Tennis requires a lot of speed."},
+            {s:"S", es:"Sí, y también juego al vóleibol en la playa.", en:"Yes, and I also play volleyball on the beach."},
+            {s:"M", es:"En Paraguay jugamos vóley en la arena.", en:"In Paraguay we play volleyball in the sand."},
+            {s:"S", es:"Yo voy a nadar a la piscina del club.", en:"I go swimming at the club's pool."},
+            {s:"M", es:"Nadar es excelente para todo el cuerpo.", en:"Swimming is excellent for the whole body."},
+            {s:"S", es:"¿Vos corrés por las mañanas?", en:"Do you run in the mornings?"},
+            {s:"M", es:"Sí, corro tres kilómetros en el parque.", en:"Yes, I run three kilometers in the park."},
+            {s:"S", es:"Hacer deporte te mantiene sano y fuerte.", en:"Doing sports keeps you healthy and strong."},
+
+            // 211-220: Furniture and Home
+            {s:"M", es:"Acabo de mudarme a un nuevo departamento.", en:"I just moved to a new apartment."},
+            {s:"S", es:"¡Qué bueno! ¿Ya compraste los muebles?", en:"How great! Did you already buy the furniture?"},
+            {s:"M", es:"Compré una cama grande y un ropero.", en:"I bought a large bed and a wardrobe."},
+            {s:"S", es:"Necesitás una mesa y cuatro sillas para el comedor.", en:"You need a table and four chairs for the dining room."},
+            {s:"M", es:"También quiero un sillón cómodo para la sala.", en:"I also want a comfortable armchair for the living room."},
+            {s:"S", es:"¿Tenés una heladera en la cocina?", en:"Do you have a refrigerator in the kitchen?"},
+            {s:"M", es:"Sí, la heladera y la cocina ya estaban allí.", en:"Yes, the fridge and the stove were already there."},
+            {s:"S", es:"Falta comprar un espejo para el baño.", en:"You still need to buy a mirror for the bathroom."},
+            {s:"M", es:"Es verdad. Voy a decorar todo poco a poco.", en:"It's true. I will decorate everything little by little."},
+            {s:"S", es:"Una casa linda te hace sentir feliz.", en:"A nice house makes you feel happy."},
+
+            // 221-230: Computers and Internet
+            {s:"M", es:"No me funciona el internet en la computadora.", en:"The internet is not working on my computer."},
+            {s:"S", es:"¿Revisaste el cable del router?", en:"Did you check the router cable?"},
+            {s:"M", es:"Sí, todo está conectado pero no hay señal.", en:"Yes, everything is connected but there is no signal."},
+            {s:"S", es:"Intenta reiniciar la computadora.", en:"Try restarting the computer."},
+            {s:"M", es:"Tengo que enviar un correo electrónico urgente.", en:"I have to send an urgent email."},
+            {s:"S", es:"Podés usar los datos de tu celular.", en:"You can use your cell phone data."},
+            {s:"M", es:"Es una buena idea. Voy a compartir internet.", en:"It is a good idea. I am going to share internet."},
+            {s:"S", es:"La tecnología a veces nos da problemas.", en:"Technology sometimes gives us problems."},
+            {s:"M", es:"Listo, el correo ya fue enviado con éxito.", en:"Ready, the email was sent successfully."},
+            {s:"S", es:"Perfecto. Ahora podemos seguir trabajando.", en:"Perfect. Now we can keep working."},
+
+            // 231-240: Body and Health (Part 2)
+            {s:"M", es:"Ayer me corté el dedo cocinando.", en:"Yesterday I cut my finger cooking."},
+            {s:"S", es:"¡Uy! ¿Sangró mucho el corte?", en:"Oops! Did the cut bleed a lot?"},
+            {s:"M", es:"Un poco. Me puse una curita rápido.", en:"A little. I put a band-aid on fast."},
+            {s:"S", es:"Tenés que tener cuidado con los cuchillos.", en:"You have to be careful with knives."},
+            {s:"M", es:"También me duele la espalda de tanto estar sentado.", en:"My back also hurts from sitting so much."},
+            {s:"S", es:"Debés estirar los brazos y la espalda.", en:"You must stretch your arms and your back."},
+            {s:"M", es:"Mirar mucho la pantalla lastima los ojos.", en:"Looking at the screen too much hurts the eyes."},
+            {s:"S", es:"Usa gotas para los ojos si están secos.", en:"Use eye drops if they are dry."},
+            {s:"M", es:"El cuerpo humano es una máquina perfecta.", en:"The human body is a perfect machine."},
+            {s:"S", es:"Hay que cuidarlo todos los días.", en:"We must take care of it every day."},
+
+            // 241-250: Describing Animals
+            {s:"M", es:"Mi animal favorito es el caballo.", en:"My favorite animal is the horse."},
+            {s:"S", es:"Los caballos son muy elegantes y rápidos.", en:"Horses are very elegant and fast."},
+            {s:"M", es:"En el campo, la gente anda mucho a caballo.", en:"In the countryside, people ride horses a lot."},
+            {s:"S", es:"A mí me encantan los perros pequeños.", en:"I love small dogs."},
+            {s:"M", es:"Los perros son los mejores amigos del hombre.", en:"Dogs are man's best friends."},
+            {s:"S", es:"Los gatos son más independientes y callados.", en:"Cats are more independent and quiet."},
+            {s:"M", es:"¿Alguna vez viste un mono en los árboles?", en:"Have you ever seen a monkey in the trees?"},
+            {s:"S", es:"Sí, en el zoológico de Asunción hay monos.", en:"Yes, in the Asunción zoo there are monkeys."},
+            {s:"M", es:"También hay loros que repiten palabras.", en:"There are also parrots that repeat words."},
+            {s:"S", es:"Los animales hacen el mundo más divertido.", en:"Animals make the world more fun."},
+
+            // 251-260: Emergency and Help
+            {s:"M", es:"¡Ayuda! Necesito llamar a una ambulancia.", en:"Help! I need to call an ambulance."},
+            {s:"S", es:"¿Qué pasó? ¿Hay alguien herido?", en:"What happened? Is someone hurt?"},
+            {s:"M", es:"Un señor se cayó en la calle y no se mueve.", en:"A man fell in the street and is not moving."},
+            {s:"S", es:"Tranquilo, yo llamo al número de emergencias.", en:"Calm down, I am calling the emergency number."},
+            {s:"M", es:"¿Cuál es el número de la policía aquí?", en:"What is the police number here?"},
+            {s:"S", es:"El novecientos once es para emergencias.", en:"Nine one one is for emergencies."},
+            {s:"M", es:"Por favor, vengan rápido. Es urgente.", en:"Please, come quickly. It is urgent."},
+            {s:"S", es:"La ambulancia ya está en camino.", en:"The ambulance is already on its way."},
+            {s:"M", es:"Gracias a Dios, el señor está despertando.", en:"Thank God, the man is waking up."},
+            {s:"S", es:"Siempre es bueno saber cómo pedir ayuda.", en:"It is always good to know how to ask for help."},
+
+            // 261-270: The Airport
+            {s:"M", es:"Llegamos al aeropuerto internacional.", en:"We arrived at the international airport."},
+            {s:"S", es:"Tenemos que buscar el mostrador de nuestra aerolínea.", en:"We have to find our airline's counter."},
+            {s:"M", es:"Aquí tengo mi pasaporte y el pasaje.", en:"Here I have my passport and the ticket."},
+            {s:"S", es:"¿Cuántas maletas vas a despachar?", en:"How many suitcases are you going to check in?"},
+            {s:"M", es:"Solo voy a despachar una maleta grande.", en:"I am only going to check in one large suitcase."},
+            {s:"S", es:"Yo llevo una mochila de mano en la cabina.", en:"I am taking a hand backpack in the cabin."},
+            {s:"M", es:"El vuelo está a tiempo. No hay retraso.", en:"The flight is on time. There is no delay."},
+            {s:"S", es:"Vamos a pasar por el control de seguridad.", en:"Let's go through the security check."},
+            {s:"M", es:"Sacate los zapatos y el cinturón.", en:"Take off your shoes and your belt."},
+            {s:"S", es:"Ya estamos en la puerta de embarque.", en:"We are already at the boarding gate."},
+
+            // 271-280: The Past Tense (Basics)
+            {s:"M", es:"¿Qué hiciste el fin de semana pasado?", en:"What did you do last weekend?"},
+            {s:"S", es:"Yo fui al cine y comí pizza.", en:"I went to the cinema and ate pizza."},
+            {s:"M", es:"Yo me quedé en casa. Estudié mucho.", en:"I stayed at home. I studied a lot."},
+            {s:"S", es:"¿No saliste con tus amigos?", en:"Didn't you go out with your friends?"},
+            {s:"M", es:"No, llovió todo el sábado por la tarde.", en:"No, it rained all Saturday afternoon."},
+            {s:"S", es:"Yo compré ropa nueva el domingo.", en:"I bought new clothes on Sunday."},
+            {s:"M", es:"Yo hablé por teléfono con mi abuela.", en:"I spoke on the phone with my grandma."},
+            {s:"S", es:"El pasado es fácil. Yo fui, yo comí, yo hablé.", en:"The past is easy. I went, I ate, I spoke."},
+            {s:"M", es:"Poco a poco aprendemos los tiempos verbales.", en:"Little by little we learn the verb tenses."},
+            {s:"S", es:"El español tiene mucha memoria.", en:"Spanish has a lot of memory."},
+
+            // 281-290: Hobbies - Music
+            {s:"M", es:"¿Te gusta tocar algún instrumento musical?", en:"Do you like to play any musical instrument?"},
+            {s:"S", es:"Sí, yo toco la guitarra acústica.", en:"Yes, I play the acoustic guitar."},
+            {s:"M", es:"A mí me gustaría aprender a tocar el piano.", en:"I would like to learn to play the piano."},
+            {s:"S", es:"La música relaja el alma y la mente.", en:"Music relaxes the soul and the mind."},
+            {s:"M", es:"¿Qué tipo de música escuchas?", en:"What type of music do you listen to?"},
+            {s:"S", es:"Escucho de todo, pero me gusta el rock.", en:"I listen to everything, but I like rock."},
+            {s:"M", es:"Yo prefiero la música clásica para trabajar.", en:"I prefer classical music for working."},
+            {s:"S", es:"En las fiestas, escuchamos reguetón y cumbia.", en:"At parties, we listen to reggaeton and cumbia."},
+            {s:"M", es:"La música latina te hace querer bailar.", en:"Latin music makes you want to dance."},
+            {s:"S", es:"Cantar en voz alta es muy liberador.", en:"Singing out loud is very liberating."},
+
+            // 291-300: Channel 2 Farewell
+            {s:"M", es:"Llegamos al final de nuestro segundo canal.", en:"We reached the end of our second channel."},
+            {s:"S", es:"Aprendiste mucho sobre la rutina diaria.", en:"You learned a lot about the daily routine."},
+            {s:"M", es:"Ahora sabes contar, viajar y pedir comida.", en:"Now you know how to count, travel, and order food."},
+            {s:"S", es:"La constancia es la clave del éxito.", en:"Consistency is the key to success."},
+            {s:"M", es:"No te rindas. Tu español suena muy bien.", en:"Do not give up. Your Spanish sounds very good."},
+            {s:"S", es:"Vuelve a escuchar este canal mañana.", en:"Listen to this channel again tomorrow."},
+            {s:"M", es:"Cierra los ojos y trata de entender sin leer.", en:"Close your eyes and try to understand without reading."},
+            {s:"S", es:"Ese es el verdadero poder de la inmersión.", en:"That is the true power of immersion."},
+            {s:"M", es:"Gracias por acompañarnos en Radio Asunción.", en:"Thank you for joining us on Radio Asunción."},
+            {s:"S", es:"Nos vemos en el próximo ciclo. ¡Chau chau!", en:"See you in the next cycle. Bye bye!"}
+        ];
+
+        const broadcastBank = rawBank.map(item => ({
+            speaker: item.s === "M" ? "Mateo" : "Sofia",
+            es: item.es,
+            en: item.en
+        }));
+
+        const playBtn = document.getElementById('playBtn');
+        const statusText = document.getElementById('statusText');
+        const transcript = document.getElementById('transcript');
+        let isPlaying = false;
+        let speechSynth = window.speechSynthesis;
+        let currentTimeout;
+        
+        // 10 seconds per block
+        const SECONDS_PER_BLOCK = 10; 
+
+        function getLiveConversationItem() {
+            const currentUnixSeconds = Math.floor(Date.now() / 1000);
+            const timeSlot = Math.floor(currentUnixSeconds / SECONDS_PER_BLOCK);
+            
+            // Loop sequentially through the 300 array items
+            const index = timeSlot % broadcastBank.length;
+            const secondsRemainingInBlock = SECONDS_PER_BLOCK - (currentUnixSeconds % SECONDS_PER_BLOCK);
+            
+            return {
+                item: broadcastBank[index],
+                delayUntilNext: secondsRemainingInBlock * 1000 
+            };
+        }
+
+        function playRadioLoop() {
+            if (!isPlaying) return;
+
+            const { item, delayUntilNext } = getLiveConversationItem();
+            
+            transcript.innerHTML = `
+                <div class="speaker-tag speaker-${item.speaker}">${item.speaker}</div>
+                <span class="es-text">${item.es}</span>
+                <span class="en-text">${item.en}</span>
+            `;
+            statusText.innerHTML = `<span style="color:var(--accent);">● LIVE</span> Broadcasting...`;
+
+            const utterance = new SpeechSynthesisUtterance(item.es);
+            utterance.rate = 0.75; 
+            
+            if (item.speaker === "Mateo") {
+                utterance.pitch = 0.8;
+            } else {
+                utterance.pitch = 1.4;
+            }
+            
+            const voices = speechSynth.getVoices();
+            const esVoice = voices.find(v => v.lang.startsWith('es-') || v.lang.startsWith('es_'));
+            if (esVoice) utterance.voice = esVoice;
+
+            speechSynth.speak(utterance);
+
+            currentTimeout = setTimeout(() => {
+                if (isPlaying) playRadioLoop();
+            }, delayUntilNext);
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                isPlaying = true;
+                playBtn.innerText = "STOP";
+                playBtn.style.backgroundColor = "#222";
+                playBtn.style.color = "white";
+                
+                if (speechSynth.getVoices().length === 0) {
+                    speechSynth.onvoiceschanged = playRadioLoop;
+                } else {
+                    playRadioLoop();
+                }
+            } else {
+                isPlaying = false;
+                playBtn.innerText = "TUNE IN";
+                playBtn.style.backgroundColor = "var(--accent)";
+                playBtn.style.color = "#000";
+                statusText.innerText = "Station Offline";
+                transcript.innerHTML = '<span style="color: #555; text-align: center; width: 100%;">Broadcast ended.</span>';
+                
+                speechSynth.cancel(); 
+                clearTimeout(currentTimeout);
+            }
+        });
+    </script>
+</body>
+</html>
